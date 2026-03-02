@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>寻觅你的内在灵性动物</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #fcfbfc;
+      --text-main: #333333;
+      --text-muted: #8e8e8e;
+      --border-color: #e8e8e8;
+      --card-bg: #ffffff;
+      --sel-bg: #f2efe9;
+      --font-serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 容器 */
+    #app {
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+    }
+
+    /* 按钮样式 */
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--text-main);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 300;
+      padding: 14px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
+      margin-top: 40px;
+      outline: none;
+    }
+    .btn-outline:hover {
+      background: var(--text-main);
+      color: #fff;
+    }
+
+    /* 首页 */
+    .home-title {
+      font-size: 2.2rem;
+      font-weight: 400;
+      margin-bottom: 20px;
+      letter-spacing: 0.1em;
+    }
+    .home-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 50px;
+      letter-spacing: 0.08em;
+    }
+
+    /* 塔罗牌区 */
+    .tarot-title {
+      font-size: 1.2rem;
+      color: var(--text-main);
+      margin-bottom: 60px;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+    .tarot-sub-title {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      letter-spacing: 0.1em;
+    }
+    .cards-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 40px;
+      perspective: 1000px;
+    }
+    .tarot-card {
+      width: 120px;
+      height: 190px;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    }
+    .tarot-card.flipped {
+      transform: rotateY(180deg);
+      cursor: default;
+    }
+    .tarot-card.hidden-others {
+      display: none;
+    }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-back {
+      background-color: #e6e3da;
+      border: 1px solid #d9d6ce;
+    }
+    .card-front {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      transform: rotateY(180deg);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+    .icon-svg {
+      width: 28px;
+      height: 28px;
+      stroke: #666;
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .card-front-text {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--text-main);
+      letter-spacing: 0.05em;
+    }
+    .continue-link {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--text-muted);
+      padding-bottom: 4px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      margin-top: 20px;
+    }
+    .continue-link.visible {
+      opacity: 1;
+    }
+
+    /* 问答区 */
+    .quiz-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: -10vh; /* 微微上提 */
+    }
+    .page-num {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 50px;
+      letter-spacing: 0.2em;
+    }
+    .question-text {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--text-main);
+      margin-bottom: 50px;
+      text-align: center;
+      line-height: 1.6;
+      width: 100%;
+    }
+    .options-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .option-item {
+      width: 100%;
+      padding: 20px 24px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1.5;
+    }
+    .option-item:active {
+      transform: scale(0.98);
+    }
+    .option-item.selected {
+      background-color: var(--sel-bg);
+      border-color: var(--sel-bg);
+    }
+
+    /* 报告区 */
+    .report-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 50px 40px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .report-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+    .report-title {
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: var(--text-main);
+      margin-bottom: 24px;
+      letter-spacing: 0.15em;
+    }
+    .report-tarot {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .report-tarot .icon-svg {
+      width: 16px;
+      height: 16px;
+    }
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: var(--border-color);
+      margin-bottom: 40px;
+    }
+    .section-title {
+      width: 100%;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+    .section-content {
+      width: 100%;
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 2;
+      margin-bottom: 32px;
+      text-align: justify;
+    }
+
+    @media (max-width: 480px) {
+      .report-card { padding: 40px 24px; }
+      .tarot-card { width: 100px; height: 160px; }
+      .option-item { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* --- 数据层 --- */
+const tarotDeck = [
+  "愚者","魔术师","女祭司","皇后","皇帝","教皇","恋人","战车","力量","隐士","命运之轮","正义","倒吊人","死神","节制","恶魔","塔","星星","月亮","太阳","审判","世界",
+  "权杖一","权杖二","权杖三","权杖四","权杖五","权杖六","权杖七","权杖八","权杖九","权杖十","权杖侍从","权杖骑士","权杖皇后","权杖国王",
+  "圣杯一","圣杯二","圣杯三","圣杯四","圣杯五","圣杯六","圣杯七","圣杯八","圣杯九","圣杯十","圣杯侍从","圣杯骑士","圣杯皇后","圣杯国王",
+  "宝剑一","宝剑二","宝剑三","宝剑四","宝剑五","宝剑六","宝剑七","宝剑八","宝剑九","宝剑十","宝剑侍从","宝剑骑士","宝剑皇后","宝剑国王",
+  "钱币一","钱币二","钱币三","钱币四","钱币五","钱币六","钱币七","钱币八","钱币九","钱币十","钱币侍从","钱币骑士","钱币皇后","钱币国王"
+];
+
+const questions = [
+  { q: "在一段亲密关系中，你最无法忍受的是？", o: ["平淡如水，缺乏激情与惊喜", "情感冷漠，无法理解彼此的内心", "思想停滞，无法进行深度的交流", "缺乏规划，生活混乱且没有安全感"] },
+  { q: "当面对突如其来的生活变故，你的第一反应是？", o: ["寻找行动方案，立刻掌控局面", "退回安全区，先消化剧烈的情绪", "顺其自然，观察事情的发展走向", "向外求助，依赖群体与朋友的力量"] },
+  { q: "深夜独自一人时，你最常陷入的沉思是？", o: ["对过去某个遗憾时刻的反刍", "对未来生活画卷的宏大想象", "对自我存在意义的深刻追问", "只是享受放空的片刻，别无所求"] },
+  { q: "如果为你准备一个完美假期，你会选择？", o: ["独自前往无人知晓的隐秘荒野", "与亲密挚友在海边彻夜长谈", "参加高强度的学习与灵修工作坊", "留在熟悉且舒适的家中阅读睡眠"] },
+  { q: "以下哪段描述，更接近你的梦境？", o: ["在很高的山上，风很安静，云在脚下慢慢移动", "森林深处有微弱的光，像在等待某个人靠近", "深蓝色的海面，没有声音，只有缓慢起伏的水", "夜空中有一条很长的路，一直通向远方"] },
+  { q: "面对不可避免的竞争，你的态度是？", o: ["燃起斗志，渴望享受胜利的果实", "避免正面冲突，用策略迂回取胜", "关注自身的成长，不在意表面输赢", "感到不适，倾向于主动退出角逐"] },
+  { q: "如果你必须化为一种自然现象存在一百年，你愿意成为？", o: ["在黑夜中缓慢燃烧的篝火", "无人打扰的深海暗流", "沉稳且孕育生机的土壤", "自由却无形无相的狂风"] },
+  { q: "在团队合作中，你通常扮演的角色是？", o: ["掌控方向并做出决断的舵手", "协调矛盾、维护和谐的粘合剂", "提供独特见解与创意的灵感源", "默默执行、提供坚实保障的后盾"] },
+  { q: "当你感到愤怒或委屈时，你会如何释放？", o: ["直接表达不满，迅速爆发并解决", "选择沉默，在内心反复咀嚼消化", "通过运动、创作等转移注意力", "寻找倾听者，将情绪和盘托出"] },
+  { q: "一部电影中，最打动你的通常是？", o: ["主角克服万难实现自我价值的历程", "微妙且难以言喻的复杂情感纠葛", "对社会现实与人性的冷峻剖析", "绝美且充满想象力的视觉意境"] },
+  { q: "你如何看待“孤独”？", o: ["是恢复能量、与自我对话的必需品", "是偶尔需要忍受的生命常态", "是激发灵感与创造力的源泉", "是需要努力去填补和逃离的状态"] },
+  { q: "当直觉与理智产生冲突时，你通常听从谁？", o: ["坚信直觉，它总能指引正确的方向", "分析利弊，理智终归更为可靠", "试图找到两者平衡的中间路线", "跟随当下的情绪冲动，不计后果"] },
+  { q: "在一座古老城邦中，你更愿意扮演？", o: ["守护律法的审判者", "暗中改写规则的谋士", "打破城墙的流浪者", "只在城中短暂停留的过客"] },
+  { q: "哪种场景最能让你感到绝对的放松？", o: ["沉浸在毫无目的的涂鸦或手工中", "在微风中进行一次漫长的徒步", "置身于热闹却不需要社交的人海中", "完成了一项艰巨任务后的疲惫瞬间"] },
+  { q: "在陌生环境中，你如何建立安全感？", o: ["快速了解环境布局与隐藏规则", "寻找一个看似友善的人作为锚点", "占据一个能观察全场边缘角落", "释放善意，主动与他人建立连接"] },
+  { q: "你认为生命中最遗憾的事情可能是？", o: ["从未真正疯狂地为自己活过一次", "未能陪伴最重要的人走到最后", "没有在热爱的领域留下深刻印记", "始终无法看清自己究竟想要什么"] },
+  { q: "如果可以拥有一种超能力，你选择？", o: ["洞悉他人内心的读心术", "自由穿梭时空的瞬移能力", "治愈一切伤痛与疾病的力量", "预见未来走向的先知之眼"] },
+  { q: "当有人在众人面前质疑你，你会？", o: ["立刻寻找反驳的理由以捍卫自我", "感到受伤，但表面装作毫不在意", "客观分析，提取有用的改进建议", "陷入长久的自我怀疑与内耗"] },
+  { q: "你更容易被哪种人吸引？", o: ["神秘莫测，有着丰富内心世界的人", "阳光热烈，充满生命力与行动力的人", "温柔细腻，能给予极高情绪价值的人", "理性睿智，能在思想上引领你的人"] },
+  { q: "对于“宿命”，你的态度是？", o: ["深信不疑，认为一切皆有定数", "相信因果，但认为事在人为", "完全抗拒，坚信命运由自己创造", "抱有敬畏，但不试图去彻底探究"] }
+];
+
+// 每个选项映射的动物类别索引 (0-14)
+const animalQ = [
+  [3, 2, 1, 11], [6, 11, 4, 7], [0, 6, 1, 12], [6, 7, 14, 11], [1, 2, 3, 12],
+  [3, 9, 13, 2], [3, 5, 11, 6], [3, 7, 9, 11], [3, 5, 14, 7], [6, 5, 1, 12],
+  [1, 11, 14, 7], [4, 1, 13, 5], [11, 13, 6, 4], [14, 2, 9, 11], [9, 7, 1, 2],
+  [6, 7, 3, 1], [1, 6, 2, 1], [3, 2, 1, 5], [5, 3, 2, 1], [1, 13, 3, 4]
+];
+
+const animals = [
+  { 
+    name: "狼", 
+    situation: "你当前正处于一段深度的内省期或独立的试炼中。周围的环境可能略显复杂，但你并未随波逐流。你的能量聚焦于向内探索，在独处中积蓄着跨越周遭喧嚣的底气，虽显孤寂，却异常清醒。",
+    trait: "你的内在动物是【狼】。这代表着你拥有坚韧不拔的意志与冷峻的洞察力。你不依赖群体的盲从，习惯以独立思考剥离事物的表象，在复杂环境中保持着属于自己的生存节奏与不可侵犯的尊严。",
+    guidance: "顺应【狼】的天性，接纳当下的孤独与沉静。不必为了迎合外界而妥协内心的秩序。相信你敏锐的直觉，在属于你的时机到来时，你自然会发出震慑人心的力量。"
+  },
+  { 
+    name: "猫头鹰", 
+    situation: "生活正向你展露其隐秘的一面。你可能面临着需要看破迷局、做出抉择的时刻。你的直觉在此刻空前敏锐，外界的喧嚣正在褪去，你比以往任何时候都更接近真相的核心。",
+    trait: "你的内在动物是【猫头鹰】。它象征着古老的智慧与穿透黑暗的视觉。你不喜张扬，却能洞悉那些潜藏在暗处的情感与动机。你信仰宁静的力量，擅长在沉思中提炼出生命的真谛。",
+    guidance: "顺应【猫头鹰】的天性，在迷雾中保持静观其变。无需急于寻找外在的答案，答案早已潜藏于你的潜意识深处。在夜晚的冥想中，倾听内心最微弱却最真实的声音。"
+  },
+  { 
+    name: "灵鹿", 
+    situation: "你当下的能量场充满着柔和与治愈的特质。可能刚刚经历了一段情感的波动，正处于需要自我呵护与休养生息的阶段。生活在提醒你放慢脚步，感知微小事物带来的纯粹喜悦。",
+    trait: "你的内在动物是【灵鹿】。你拥有极高的敏感度与同理心，因温柔而坚韧。你像一阵和煦的微风，总能敏锐地捕捉到他人的情绪需求，并在无声中带来宁静与疗愈的抚慰。",
+    guidance: "顺应【灵鹿】的天性，请务必先将这份温柔倾注于自身。建立健康的边界，保护好自己敏感的灵魂。允许自己避开过于激烈的冲突，在自然的怀抱中寻找情绪的避风港。"
+  },
+  { 
+    name: "雄狮", 
+    situation: "你正站在一个充满挑战与机遇的十字路口，能量场中涌动着强烈的进取心与领导欲。过去的积淀让你渴望在当下展现实力，这正是你需要站出来掌控局面、开疆拓土的关键时期。",
+    trait: "你的内在动物是【雄狮】。这赋予了你无与伦比的勇气、自信以及阳光般热烈的生命力。你不畏惧承担责任，天生具有激励他人、引领团队的魄力，是面对困境时最坚定的守护者。",
+    guidance: "顺应【雄狮】的天性，大方地展露你的光芒，不再自我隐藏。在果断出击的同时，也要记得以宽广的胸怀包容他人的局限。真正的王者，既有雷霆万钧之势，也有柔情似水之心。"
+  },
+  { 
+    name: "野猫", 
+    situation: "你当下的状态如同游走在边界上的旁观者，既不愿被世俗的繁文缛节所束缚，又在寻找着令自己感到真正舒适的栖息地。生活中可能出现了一些变数，但你选择以随遇而安的态度应对。",
+    trait: "你的内在动物是【野猫】。你优雅、独立且极具直觉力。你深知自己的边界在哪里，从不轻易讨好世界。在随性与慵懒的表象下，隐藏着对周遭环境极高的警觉与自我保护机制。",
+    guidance: "顺应【野猫】的天性，享受这种自由灵动、不受拘束的生命状态。不要被他人的期待所绑架，忠于你瞬间的直觉和喜好。当你完全放松下来时，宇宙自然会为你安排最合适的际遇。"
+  },
+  { 
+    name: "灵蛇", 
+    situation: "你正处于一场深刻的个人蜕变之中。旧有的模式、观念或关系正在剥落，这个过程可能伴随着阵痛与迷茫，但也孕育着全新的生机。你的灵魂正在经历一次深度的更新与清洗。",
+    trait: "你的内在动物是【灵蛇】。它代表着敏锐、深邃与重生的力量。你敢于直面人性与生活中的幽暗地带，具有极强的自我愈合与转化能力，每一次褪皮都是为了迎接更强大的自我。",
+    guidance: "顺应【灵蛇】的天性，不要抗拒当下正在发生的改变与割裂。勇敢地放下那些不再滋养你的事物。在幽暗的蜕变期保持耐心，当你重见天日时，必将拥有更成熟的智慧与更闪耀的光芒。"
+  },
+  { 
+    name: "猎鹰", 
+    situation: "你当前的视野正被无限拉高，生活似乎在催促你跳出琐碎的日常，去进行更高维度的规划。你可能正面临一个需要果断决策的重要节点，而你已经敏锐地锁定了目标的方向。",
+    trait: "你的内在动物是【猎鹰】。你崇尚自由，拥有卓越的远见与雷厉风行的决断力。你不甘心平庸的安稳，渴望在更广阔的天地中展翅高飞。你善于在宏观大局中精准地把握住稍纵即逝的机遇。",
+    guidance: "顺应【猎鹰】的天性，相信你从高空俯瞰到的全局直觉。不要被眼前的细枝末节绊住脚步，坚定地向着你锁定的目标俯冲。你的力量在于速度与果决，时机一到，即刻行动。"
+  },
+  { 
+    name: "大象", 
+    situation: "你当下的能量极其沉稳，可能正扮演着家庭或团队中基石般的角色。周围的人正在从你这里汲取安全感。这是一段适合积累、沉淀以及维护重要关系的时期，无需急于求成。",
+    trait: "你的内在动物是【大象】。你代表着慈悲、宽厚与不可撼动的底蕴。你拥有惊人的记忆力与耐心，能够包容世间的诸多不完美。你步履从容，却能承载起他人难以想象的重量。",
+    guidance: "顺应【大象】的天性，继续用你的沉稳去滋养周围的世界。但请切记，不可无底线地承接所有的重担。在守护他人的同时，也要为自己保留一片宁静的栖息之地，定期清理情绪的淤积。"
+  },
+  { 
+    name: "灵兔", 
+    situation: "你正处于一个对周遭环境极为敏感的阶段，任何细微的能量变动都会在你的内心引起涟漪。你可能在刻意回避过于喧嚣或充满竞争的场合，更倾向于在安全、熟悉的小圈子里寻找安慰。",
+    trait: "你的内在动物是【灵兔】。你纯净、善良、机灵且充满感知力。你的灵魂没有过多复杂的杂质，总是以最柔软的姿态面对世界。你极度珍惜和平，是那个在暗处默默散发微光的人。",
+    guidance: "顺应【灵兔】的天性，无需为自己的敏感而感到抱歉。这份敏感正是你感知世界美好细节的天赋。只需学会为自己构筑一个安全的结界，在感到威胁时果断退避，保护好你的纯真。"
+  },
+  { 
+    name: "赤狐", 
+    situation: "生活正处于多变且充满不确定性的状态，而你正以极高的灵活性游走其中。你可能在处理一些复杂的人际关系或棘手的问题，且能够巧妙地避开锋芒，寻找最有利的切入点。",
+    trait: "你的内在动物是【赤狐】。你机智、圆融且适应力极强。你精通生存的艺术，懂得在不同的环境与人群中展现不同的侧面。你聪明且带有一丝神秘，总能以最轻盈的方式化解危机。",
+    guidance: "顺应【赤狐】的天性，继续发挥你的聪明才智与随机应变的能力。但要注意，在灵活应对外界的同时，不要迷失了自己最核心的本心。偶尔放下防备与策略，展露你真实的柔软。"
+  },
+  { 
+    name: "彩蝶", 
+    situation: "你当下的生活正迎来一段充满色彩与变化的时期。长期的蛰伏与准备即将告一段落，你正处于能量升华的边缘，准备向世界展示你经过岁月洗礼后独一无二的美丽与光彩。",
+    trait: "你的内在动物是【彩蝶】。它象征着彻底的转化、浪漫与对极致之美的追求。你不满足于平淡无奇的存在方式，你的灵魂渴望经历风暴后破茧成蝶的轻盈，用独特的姿态装点这个世界。",
+    guidance: "顺应【彩蝶】的天性，勇敢地迎接一切变化，因为那都是你升华的必经之路。不要害怕展示你的才华与魅力，在这个阶段，你注定要吸引众人的目光，去尽情飞舞吧。"
+  },
+  { 
+    name: "棕熊", 
+    situation: "你可能正处于一种“冬眠”般的蛰伏期，对外界的刺激反应不再强烈，而是将极大的能量转向了内在的修补与滋养。这并非停滞，而是在为未来的爆发积蓄极其深厚的底蕴与力量。",
+    trait: "你的内在动物是【棕熊】。你厚重、深沉、充满力量且极具内省精神。你像大地一般可靠，拥有无限的潜能，但从不轻易展示。你习惯在独处中消化一切，你的力量源自内心的沉静。",
+    guidance: "顺应【棕熊】的天性，允许自己暂时退出现世的喧闹。在你的“洞穴”中好好休息，汲取智慧与力量。当你感到内在足够充盈、时机成熟时，你重新踏出的每一步都将震撼大地。"
+  },
+  { 
+    name: "蜂鸟", 
+    situation: "你当下的状态轻盈且充满好奇，生活中充满了细碎但令人愉悦的小确幸。你的注意力可能在不同的兴趣与目标之间快速切换，正享受着这种充满灵动感与新鲜感的生活节奏。",
+    trait: "你的内在动物是【蜂鸟】。你代表着极致的轻盈、灵巧与对生活不竭的探索欲。你拒绝沉重与拖沓，能够在空中悬停，也能迅速转向。你总能在平凡的日常中发现那滴最甜美的花蜜。",
+    guidance: "顺应【蜂鸟】的天性，跟随你的快乐与好奇心去探索这个世界。不必强求自己必须在哪一处长久停留，你的使命就是品尝生命的多样性。保持内心的轻松，让灵魂自由飞舞。"
+  },
+  { 
+    name: "天鹅", 
+    situation: "你当前正致力于在混乱中寻找一种优雅的秩序。可能在努力平衡工作与生活，或是试图在一团乱麻的关系中保持自身的体面。你渴望一种纯粹、和谐且具有美感的精神状态。",
+    trait: "你的内在动物是【天鹅】。你优雅、纯净且高度自律。你对美有着天生的洁癖，追求内在秩序与外在表现的完美统一。你在水面上展现着高贵与平静，即使水下正在拼命划动，也不失风度。",
+    guidance: "顺应【天鹅】的天性，坚持你对和谐与美的极致追求。但请允许自己偶尔的不完美，接纳水面之下的那些狼狈与挣扎。真正的优雅不是没有瑕疵，而是即使身处泥淖，依然昂首挺胸。"
+  },
+  { 
+    name: "狼蛛", 
+    situation: "你正沉浸在自己构建的小宇宙中，编织着属于你个人的宏大计划或创意作品。外界的干扰对你而言微乎其微，你正在暗处默默布局，等待着猎物或时机触网的那一刻。",
+    trait: "你的内在动物是【狼蛛】。这代表着隐秘的创造力、深沉的耐心与掌控全局的野心。你习惯于独立思考，善于构建精密复杂的系统。你带着一种致命的神秘吸引力，让人想要探究却又心生敬畏。",
+    guidance: "顺应【狼蛛】的天性，专注地编织你的梦想之网。不要急于向世界宣告你的计划，在暗处的沉淀会让你更加强大。当你构建完毕，只需静静等待，一切美好的事物都会自然落入你的掌控之中。"
+  }
+];
+
+// 塔罗简意
+const tarotMeanings = {
+  "月亮": "暗示潜意识与直觉的觉醒，或许伴随一丝迷茫",
+  "太阳": "充满生机与活力的能量，象征明朗与希望",
+  "星星": "代表灵感、希望与内在的宁静疗愈",
+  "命运之轮": "命运的齿轮转动，暗示不可避免的转折与机遇",
+  "圣杯十": "暗示着目前生活中的一次情感圆满或内省期",
+  "权杖一": "充满激情的全新开始，行动力正在复苏",
+  "宝剑三": "可能正经历短暂的阵痛，但理智会带来解脱",
+  "死神": "旧有模式的彻底结束，也是全新重生的开始",
+  "愚者": "抛下过往的包袱，准备迎接一场未知的冒险"
+};
+
+// SVG 图标
+const icons = {
+  star: `<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2L14 9L21 11L14 13L12 20L10 13L3 11L10 9L12 2Z" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+  moon: `<svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke-linejoin="round" stroke-linecap="round"/><circle cx="16" cy="6" r="1.5" fill="#666"/></svg>`
+};
+
+/* --- 逻辑与视图渲染 --- */
+const app = document.getElementById('app');
+let tarotCard = "";
+let currentQ = 0;
+let userAnswers = [];
+
+function renderHome() {
+  app.innerHTML = `
+    <div class="home-title">寻觅你的内在灵性动物</div>
+    <div class="home-sub">一次关于潜意识与能量的探索</div>
+    <button class="btn-outline" onclick="renderTarotStage()">开启旅程</button>
+  `;
+}
+
+function renderTarotStage() {
+  const drawnCards = [];
+  while(drawnCards.length < 3) {
+    let card = tarotDeck[Math.floor(Math.random() * tarotDeck.length)];
+    if(!drawnCards.includes(card)) drawnCards.push(card);
+  }
+
+  app.innerHTML = `
+    <div class="tarot-sub-title">请凭直觉，抽取一张牌</div>
+    <div class="cards-container" id="cards-container">
+      ${drawnCards.map((c, index) => `
+        <div class="tarot-card" onclick="flipCard(this, '${c}')" data-index="${index}">
+          <div class="card-face card-back">${icons.star}</div>
+          <div class="card-face card-front">
+            ${icons.moon}
+            <div class="card-front-text">${c}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="continue-link" id="continue-link" onclick="startQuiz()">带着指引，继续前行</div>
+  `;
+}
+
+window.flipCard = function(el, cardName) {
+  if (tarotCard !== "") return; // 已抽过
+  tarotCard = cardName;
+  
+  // 翻转当前牌
+  el.classList.add('flipped');
+  
+  // 隐藏其他牌并让选中牌居中
+  const container = document.getElementById('cards-container');
+  const allCards = container.querySelectorAll('.tarot-card');
+  allCards.forEach(c => {
+    if(c !== el) {
+      c.style.opacity = '0';
+      setTimeout(() => c.style.display = 'none', 300);
+    }
+  });
+
+  // 更改上方文字
+  document.querySelector('.tarot-sub-title').innerText = "当下的能量映射";
+  
+  // 显示继续链接
+  setTimeout(() => {
+    document.getElementById('continue-link').classList.add('visible');
+  }, 800);
+}
+
+window.startQuiz = function() {
+  currentQ = 0;
+  userAnswers = [];
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (currentQ >= questions.length) {
+    generateReport();
+    return;
+  }
+  
+  const q = questions[currentQ];
+  app.innerHTML = `
+    <div class="quiz-container">
+      <div class="page-num">${currentQ + 1} / 20</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options-list">
+        ${q.o.map((opt, i) => `
+          <div class="option-item" onclick="selectOption(this, ${i})">${opt}</div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+window.selectOption = function(el, optIndex) {
+  // 防止重复点击
+  if (el.parentNode.querySelector('.selected')) return;
+  
+  el.classList.add('selected');
+  userAnswers.push(optIndex);
+  
+  setTimeout(() => {
+    currentQ++;
+    renderQuiz();
+  }, 400);
+}
+
+function generateReport() {
+  // 简单统计算法：记录每个动物类别出现的频次
+  let scores = new Array(15).fill(0);
+  for(let i = 0; i < 20; i++) {
+    let animalIdx = animalQ[i][userAnswers[i]];
+    if(animalIdx !== undefined) scores[animalIdx]++;
+  }
+  
+  // 找出最高分
+  let maxScore = Math.max(...scores);
+  let topAnimals = [];
+  scores.forEach((s, idx) => { if (s === maxScore) topAnimals.push(idx); });
+  
+  // 随机取一个最高分的动物
+  let finalAnimalIdx = topAnimals[Math.floor(Math.random() * topAnimals.length)];
+  let animal = animals[finalAnimalIdx];
+
+  // 塔罗解读提取
+  let tMean = tarotMeanings[tarotCard] || `暗含着目前生活中的一次转变或内省期。你可能正在经历能量的重组。`;
+
+  app.innerHTML = `
+    <div class="report-card">
+      <div class="report-sub">你的内在灵性动物</div>
+      <div class="report-title">${animal.name}</div>
+      
+      <div class="report-tarot">
+        ${icons.moon}
+        当下能量：${tarotCard}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">当下境遇</div>
+      <div class="section-content">
+        【${tarotCard}】的能量环绕着你，${tMean}。<br><br>
+        ${animal.situation}
+      </div>
+
+      <div class="section-title">灵魂特质</div>
+      <div class="section-content">
+        ${animal.trait}
+      </div>
+
+      <div class="section-title">灵性指引</div>
+      <div class="section-content">
+        ${animal.guidance}
+      </div>
+
+      <button class="btn-outline" style="margin-top:20px;" onclick="location.reload()">重新探索</button>
+    </div>
+  `;
+}
+
+// 启动渲染
+renderHome();
+
+</script>
+</body>
+</html>
