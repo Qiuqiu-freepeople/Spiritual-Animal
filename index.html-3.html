@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>寻觅你的内在灵性动物</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #fcfbfc;
+      --bg-gradient: linear-gradient(135deg, #fcfbfc 0%, #f7f6f2 100%);
+      --text-main: #333333;
+      --text-muted: #8e8e8e;
+      --border-color: #e8e8e8;
+      --card-bg: #ffffff;
+      --sel-bg: #f2efe9;
+      --card-back-bg: #e6e3da;
+      --card-back-border: #d9d6ce;
+      --font-serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--text-main);
+      color: var(--text-main);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 300;
+      padding: 14px 44px;
+      border-radius: 40px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 50px;
+      outline: none;
+    }
+    .btn-outline:hover {
+      background: var(--text-main);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+
+    .home-title {
+      font-size: 2.2rem;
+      font-weight: 400;
+      margin-bottom: 24px;
+      letter-spacing: 0.15em;
+      text-align: center;
+      color: #222;
+    }
+    .home-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 60px;
+      letter-spacing: 0.1em;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .tarot-sub-title {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 50px;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+    .cards-container {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-bottom: 30px;
+      perspective: 1000px;
+    }
+    .tarot-card {
+      width: 120px;
+      height: 200px;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1), box-shadow 0.4s ease;
+    }
+    .tarot-card:hover {
+      transform: translateY(-5px);
+    }
+    .tarot-card.flipped {
+      transform: rotateY(180deg) scale(1.05);
+      cursor: default;
+    }
+    .tarot-card.flipped:hover {
+      transform: rotateY(180deg) scale(1.05);
+    }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.4s ease;
+      padding: 10px;
+    }
+    .card-back {
+      background-color: var(--card-back-bg);
+      border: 1px solid var(--card-back-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .card-front {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      transform: rotateY(180deg);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+      justify-content: space-evenly;
+    }
+    .icon-svg {
+      width: 28px;
+      height: 28px;
+      stroke: #555;
+      stroke-width: 1.2;
+      fill: none;
+    }
+    .card-front-svg {
+      width: 50px;
+      height: 50px;
+      stroke: #444;
+      stroke-width: 1.5;
+      fill: none;
+      margin-bottom: 10px;
+    }
+    .card-front-text {
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--text-main);
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+    .tarot-explanation {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.8;
+      text-align: center;
+      max-width: 85%;
+      margin: 20px auto 0;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.8s ease;
+      letter-spacing: 0.05em;
+    }
+    .tarot-explanation.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .continue-link {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--text-muted);
+      padding-bottom: 6px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.5s ease;
+      margin-top: 40px;
+      letter-spacing: 0.1em;
+    }
+    .continue-link.visible {
+      opacity: 1;
+    }
+    .continue-link:hover {
+      color: var(--text-main);
+      border-color: var(--text-main);
+    }
+
+    .quiz-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: -5vh;
+      animation: fadeIn 0.8s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-num {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 50px;
+      letter-spacing: 0.25em;
+    }
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--text-main);
+      margin-bottom: 50px;
+      text-align: center;
+      line-height: 1.7;
+      width: 100%;
+    }
+    .options-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .option-item {
+      width: 100%;
+      padding: 20px 24px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      font-size: 1rem;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1.6;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+    }
+    .option-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+      border-color: #dcdcdc;
+    }
+    .option-item:active {
+      transform: scale(0.99);
+    }
+    .option-item.selected {
+      background-color: var(--sel-bg);
+      border-color: var(--sel-bg);
+      box-shadow: none;
+      transform: scale(0.99);
+    }
+
+    .report-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 60px 44px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 1s ease;
+    }
+    .report-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      margin-bottom: 20px;
+    }
+    .report-title {
+      font-size: 2.8rem;
+      font-weight: 400;
+      color: var(--text-main);
+      margin-bottom: 30px;
+      letter-spacing: 0.15em;
+    }
+    .report-tarot {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 50px;
+    }
+    .report-tarot .icon-svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-muted);
+    }
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: var(--border-color);
+      margin-bottom: 40px;
+    }
+    .section-title {
+      width: 100%;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+    .section-content {
+      width: 100%;
+      font-size: 1rem;
+      color: #555;
+      line-height: 2.1;
+      margin-bottom: 40px;
+      text-align: justify;
+    }
+
+    @media (max-width: 480px) {
+      .report-card { padding: 40px 24px; }
+      .tarot-card { width: 100px; height: 170px; }
+      .option-item { padding: 16px 20px; font-size: 0.95rem; }
+      .home-title { font-size: 1.8rem; }
+      .report-title { font-size: 2.2rem; }
+      .tarot-explanation { max-width: 95%; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* --- 数据层 --- */
+// 补全78张塔罗牌
+const tarotDeck =[
+  "愚者","魔术师","女祭司","皇后","皇帝","教皇","恋人","战车","力量","隐士","命运之轮","正义","倒吊人","死神","节制","恶魔","塔","星星","月亮","太阳","审判","世界",
+  "权杖一","权杖二","权杖三","权杖四","权杖五","权杖六","权杖七","权杖八","权杖九","权杖十","权杖侍从","权杖骑士","权杖王后","权杖国王",
+  "圣杯一","圣杯二","圣杯三","圣杯四","圣杯五","圣杯六","圣杯七","圣杯八","圣杯九","圣杯十","圣杯侍从","圣杯骑士","圣杯王后","圣杯国王",
+  "宝剑一","宝剑二","宝剑三","宝剑四","宝剑五","宝剑六","宝剑七","宝剑八","宝剑九","宝剑十","宝剑侍从","宝剑骑士","宝剑王后","宝剑国王",
+  "钱币一","钱币二","钱币三","钱币四","钱币五","钱币六","钱币七","钱币八","钱币九","钱币十","钱币侍从","钱币骑士","钱币王后","钱币国王"
+];
+
+const tarotMeanings = {
+  "愚者": "你正站在一个全新的起点，过往的包袱已被清空。当下你需要盲目的乐观与无畏的勇气去迎接未知的冒险。",
+  "魔术师": "创造力与显化的力量已达到顶峰。你拥有解决当前问题所需的所有资源，是时候将想法付诸行动了。",
+  "女祭司": "内在的智慧之门正在敞开。当下面对选择，请屏蔽外界的喧嚣，深深信任你心底最直觉的判断。",
+  "皇后": "这是一种丰饶与孕育的能量。当下你需要多滋养自己，去感受生活的美学，爱与被爱正在你的生命中流淌。",
+  "皇帝": "代表着秩序、掌控与不可撼动的原则。当下的处境需要你建立起规则，承担起稳固局面的责任与领导力。",
+  "教皇": "精神的指引与知识的传承。当下的你也许正在寻求某种传统的智慧，或者需要一位精神导师来为你答疑解惑。",
+  "恋人": "面临重要的选择与深刻的人际连结。当下你需要倾听内心的声音，做出最忠于自我灵魂的抉择。",
+  "战车": "坚定的意志与破竹般的力量。它暗示你当下只要掌控好内心的矛盾与冲突，必能冲破一切眼前的阻碍。",
+  "力量": "以柔克刚的内在坚韧正在显现。当下的你需要用耐心和温柔去驯服心中的猛兽或外界的敌意，而非硬碰硬。",
+  "隐士": "一段向内寻觅真理的独处时期。此时建议你暂时远离无意义的社交，在安静的反思中寻找前行的明灯。",
+  "命运之轮": "不可抗拒的转变正在发生。命运的齿轮已然转动，当下请顺应变化，不要抗拒即将到来的崭新契机。",
+  "正义": "平衡、因果与绝对的理性。它提醒你当下需要用最客观的视角审视现状，你的每一个选择都将带来对等的回报。",
+  "倒吊人": "换个角度看待事物，或者经历一段自愿的牺牲。当下可能需要你暂时停下脚步，在停滞与忍耐中获得全新的觉知。",
+  "死神": "旧有模式的彻底结束与深刻的重生。不要抗拒当下必须进行的告别，清理腐朽才能为更宏大的新生腾出空间。",
+  "节制": "能量的净化、融合与中庸之道。当下你需要在生活的各个层面（工作与休息、理智与情感）中寻找微妙的平衡。",
+  "恶魔": "物质的诱惑、欲望的纠缠与某种执念。它警示你审视当下，是否被不良的习惯、有毒的关系或内心的恐惧所困住。",
+  "塔": "突如其来的崩塌与意料之外的剧变。当下的破碎虽然痛苦，却是摧毁虚假安全感、让你重建真实自我的必经之路。",
+  "星星": "充满灵感、希望与深度的内在疗愈。你正受到宇宙的温柔祝福，当下的你请保持乐观，前方的道路已被星光照亮。",
+  "月亮": "潜意识的波澜与隐藏的迷惘。当下你可能会感到不安或迷惑，这很正常，请与你的直觉做伴，静静等待迷雾散去。",
+  "太阳": "生机、成功与无与伦比的明朗。阴霾已经彻底消散，当下的你正沐浴在宇宙的暖光中，充满着纯粹的喜悦与力量。",
+  "审判": "过去的清算与灵魂的深度唤醒。当下的你需要进行一场深刻的自我反思，响应内心更高维度的呼唤并做出蜕变。",
+  "世界": "一个重要阶段的圆满结束与崭新维度的开启。它标志着你当下的境遇正走向和谐与完满，一切都在完美的闭环中。",
+  "权杖一": "一股强烈的灵感与行动欲正在迸发。当下是开始新计划、追寻新激情的绝佳时机。",
+  "权杖二": "你正站在决定未来走向的十字路口。当下需要你放眼全局，为下一步的扩张做好周密的规划。",
+  "权杖三": "你早期的努力正开始显现初步的成果。当下你的视野正在拓宽，适合寻求合作或向更远的目标迈进。",
+  "权杖四": "代表着短暂的庆祝与稳固的基础。当下你可以稍微放松，享受现阶段取得的安全感与和谐氛围。",
+  "权杖五": "周围存在着竞争、摩擦或意见的分歧。当下你需要把这种混乱视作一种头脑风暴，而不是恶意的攻击。",
+  "权杖六": "胜利的喜悦与外界的认可正在向你走来。当下的你值得为自己的成就感到骄傲，请享受属于你的高光时刻。",
+  "权杖七": "你可能正在遭遇挑战或需要捍卫自己的立场。当下请保持不屈的勇气，你拥有守住底线的能力。",
+  "权杖八": "事物正在以极快的速度向前推进。当下的停滞已被打破，你需要迅速做出反应，抓住稍纵即逝的机会。",
+  "权杖九": "你感到疲惫且充满戒备，但距离终点只剩一步之遥。当下请咬紧牙关，你的韧性将带你跨越最后的难关。",
+  "权杖十": "你正背负着沉重的压力前行，且大多是你自愿揽下的。当下请学会卸下不必要的重担，学会委托与放手。",
+  "权杖侍从": "一个令人兴奋的新想法正在你脑海中成型。当下请保持好奇心，勇敢去探索那些让你感到热情的事物。",
+  "权杖骑士": "充满激情、冲动且行动力爆棚的能量。当下的你可能急于奔向某个目标，但请注意不要因为鲁莽而犯错。",
+  "权杖王后": "散发着自信、温暖与迷人的魅力。当下你需要展现出你独立且极具吸引力的一面，用热情去感染周围的人。",
+  "权杖国王": "具备宏大的愿景与天生的领导力。当下你需要以一种坚定且富有远见的方式来掌控全局，推动事情的发展。",
+  "圣杯一": "情感的清泉正在涌动，可能是一段新感情的开始或心灵的触动。当下请敞开心扉，迎接爱的注入。",
+  "圣杯二": "代表着平等、和谐与深刻的灵魂契合。当下的你会在某段关系或合作中找到极大的共鸣与疗愈感。",
+  "圣杯三": "这是一个关于分享、友谊与欢乐的时刻。当下请走出孤岛，与那些让你感到轻松的人一起庆祝生活。",
+  "圣杯四": "你可能正处于一种情感的倦怠或冷漠之中，对外在的提议缺乏兴趣。当下请反思，你是否忽略了身边已有的美好。",
+  "圣杯五": "沉浸在失去的遗憾与悲伤中。当下请允许自己悲伤，但别忘了转过身，看看那些仍然完好无损的拥有。",
+  "圣杯六": "被过往的回忆、纯真的童年或旧日的安全感所包裹。当下的你可能需要从温馨的往事中汲取面对现实的慰藉。",
+  "圣杯七": "面对众多诱惑与虚幻的选择，你感到眼花缭乱。当下请保持清醒，剥离掉不切实际的幻想，看清事物的本质。",
+  "圣杯八": "你决定离开目前看似舒适但已无法滋养灵魂的处境。当下你需要极大的勇气去追寻更高层次的精神满足。",
+  "圣杯九": "代表着心愿达成与极大的情感满足。当下的你正处于一种得意且安逸的状态，请好好享受这份幸福。",
+  "圣杯十": "这是一种深层的情感圆满与家庭/团队的和谐。当下你所处的环境充满了爱与支持，是最为宁静的避风港。",
+  "圣杯侍从": "内心的柔软被触碰，直觉正在萌芽。当下的你也许会收到一个令人感到温暖的消息，或是产生新的灵感。",
+  "圣杯骑士": "带着浪漫、理想主义与温柔的追求。当下你需要听从内心的情感引导，用诗意和柔情去对待眼前的人与事。",
+  "圣杯王后": "极度敏感、富有同理心与深不可测的直觉。当下的你如同一个情感的容器，需要去感受而不是用理智去分析。",
+  "圣杯国王": "代表着情感的成熟与深度的内心平衡。当下你能够在复杂的局势中保持情绪的稳定，宽容地对待一切。",
+  "宝剑一": "拨开云雾见青天的绝对清醒。当下你需要用锋利的理智切断迷茫，去拥抱那个甚至有些残酷的真相。",
+  "宝剑二": "处于一种封闭自我、拒绝面对现实的僵局中。当下你必须放下防备，勇敢做出那个你一直在逃避的决定。",
+  "宝剑三": "悲伤、心碎或残酷的真相正在穿透你的防线。当下请允许情绪流淌，不要用理智去强行压抑内心的痛楚。",
+  "宝剑四": "代表着退顿、休息与大脑的强制关机。当下的你急需一个安静的空间来恢复心智的能量，不要勉强行动。",
+  "宝剑五": "一场充满争执或损人不利己的冲突。当下请审视你所坚持的战斗是否真的有意义，有时候放下争辩才是赢。",
+  "宝剑六": "正在缓慢驶离悲伤或混乱的水域，向着平静过渡。当下是一个疗愈的过渡期，尽管缓慢，但情况正在好转。",
+  "宝剑七": "代表着策略、隐蔽行动甚至有些自欺欺人。当下可能需要你运用一些不按常规出牌的智慧，或者提防隐藏的欺骗。",
+  "宝剑八": "你觉得自己被困住了，但其实束缚你的往往是内心的恐惧。当下请摘下眼罩，你会发现自己随时可以走出来。",
+  "宝剑九": "深夜的焦虑、失眠与精神上的折磨。当下你正在被内心的噩梦所反噬，请记住，绝大多数的担忧并不会发生。",
+  "宝剑十": "这是理智崩溃的谷底，也是痛苦的终点。当下的你已经没有什么可以失去的了，因为最坏的情况已经过去。",
+  "宝剑侍从": "充满警觉、好奇与思维的敏捷。当下你需要保持机敏，收集信息，用锐利的眼光去观察周围的动静。",
+  "宝剑骑士": "带着不可阻挡的逻辑与快刀斩乱麻的决断力。当下的你需要迅速且果断地采取行动，用事实去击碎虚伪。",
+  "宝剑王后": "拥有看透一切虚妄的冷静与极致的理智。当下你需要保持绝对的客观，用清晰的边界感来保护自己。",
+  "宝剑国王": "代表着思想的权威、严密的逻辑与专业的判断。当下请用你专业的知识与冷峻的头脑来主导这盘棋局。",
+  "钱币一": "一个关于物质、工作或现实层面的新机会正在降临。当下请把握住这个能在现实中生根发芽的宝贵契机。",
+  "钱币二": "你正在同时抛耍多项任务或处理财务的流动。当下你需要灵活应变，在动荡的现实中寻找微妙的平衡。",
+  "钱币三": "代表着团队合作、专业技能的展现与初步的架构。当下的你需要在群体中发挥自己的专长，共同构建宏图。",
+  "钱币四": "对物质极度的保护欲与不安全感。当下的你可能过于固执地抓取眼前的资源，请小心不要因为吝啬而切断了能量的流动。",
+  "钱币五": "经历着物质或精神上的双重匮乏与孤立。当下请不要独自在风雪中硬扛，抬头看看，帮助其实就在身边。",
+  "钱币六": "代表着资源的给予、接受与财务的平衡。当下的你可能扮演着援助者的角色，或即将得到现实层面的帮助。",
+  "钱币七": "辛勤播种后的审视与等待期。当下你需要停下来评估之前的努力是否值得，对未来的投入进行耐心的考量。",
+  "钱币八": "专注于细节与重复性打磨的匠人精神。当下请保持极大的耐心，你的每一分枯燥的努力都在铸就未来的专业底气。",
+  "钱币九": "代表着物质的富足、自律的享受与高度的独立。当下的你完全有资格去享受你通过努力换来的美好现实生活。",
+  "钱币十": "财富的传承、家族的稳固与长期的安全感。当下你拥有极其坚实的现实基础，一切努力都已结出长远丰硕的果实。",
+  "钱币侍从": "带着踏实学习、勤勉与对现实机会的探索。当下请一步一个脚印地去执行你的计划，不要好高骛远。",
+  "钱币骑士": "极其负责任、吃苦耐劳且步履稳健。当下的你需要展现出极强的可靠性，用坚持不懈的态度去完成任务。",
+  "钱币王后": "充满滋养、务实与懂得享受物质生活的能量。当下你需要好好照顾自己的身体，营造一个安全且舒适的环境。",
+  "钱币国王": "代表着商业的成功、财富的掌控与绝对的现实保障。当下你就是自己领地里的王者，一切都在稳妥的掌控之中。"
+};
+
+const questions =[
+  { q: "如果必须失去一种感知能力，你最不愿意失去？", o:["嗅觉，能通过气味判断环境变化", "触觉，能感受温度与真实接触", "听觉，能通过声音感知情绪与距离", "视觉，能通过画面获取大部分信息"] },
+  { q: "如果记忆必须储存在某种物质中，你会选择？", o:["一块琥珀，将记忆完整保留下来", "一块金属刻板，清晰而固定地记录", "一滴水，让记忆融入更大的世界", "一本书，只在特定时刻被翻开"] },
+  { q: "梦境中下坠时，你更可能？", o:["调整姿态，尝试控制方向", "放松身体，接受失重感", "寻找可以抓住的支点", "保持镇定，相信会安全落地"] },
+  { q: "哪种气味最能让你平静？", o:["雨后泥土的味道", "旧书纸张的气味", "冬日松木的清香", "海水的咸味"] },
+  { q: "如果将时间具象化，你觉得它更像什么？", o:["一个不断循环的过程", "缓慢流动的沙", "随时改变方向的风", "精确运转的机器"] },
+  { q: "如果灵魂必须化作一种自然现象守护世界，你更愿意成为？", o:["一场安静的雨", "一道短暂的极光", "一阵强劲的风", "一束微弱却持续的光"] },
+  { q: "当你在旷野中听到一种声音，你觉得它更像？", o:["某种巨大生物的低声回响", "远处微弱的震动", "风穿过空地的声音", "地下水流的回声"] },
+  { q: "凝视深渊时，如果看到一束光，你认为那是？", o:["另一个意识的存在", "黑暗中的残余光点", "危险的诱惑", "新事物的开始"] },
+  { q: "如果灵魂有形状，你觉得它更像？", o:["有裂痕但仍发光的石头", "一缕飘散的烟", "平静的水面", "一棵扎根很深的树"] },
+  { q: "当你极度疲惫时，哪种景象最能治愈你？", o:["平静的湖面", "在风中摇动的森林", "覆雪的群山", "夕阳下的天空"] },
+  { q: "面对一面光滑的黑色墙壁，你会？", o:["靠近感受它的质感", "寻找边缘绕过去", "原地思考它存在的意义", "本能地退开"] },
+  { q: "如果可以选择一种非人类的交流方式，你更倾向于？", o:["通过共享梦境传递感受", "通过特定频率的震动进行沟通", "在脑海中直接传递画面和想法", "通过肢体和气味进行本能交流"] }
+];
+
+// 重构的核心加权映射关系（每个选项赋予3~4个动物权重，分布于60种维度，彻底打破重叠）
+const animalQ = [
+  [[8, 26, 32, 54],[12, 18, 31, 47],[1, 21, 23, 58],[11, 22, 7, 42]],
+  [[18, 31, 29, 44], [22, 8, 11, 50],[10, 1, 21, 41],[9, 23, 19, 57]],
+  [[11, 30, 15, 51],[10, 6, 2, 46],[25, 29, 27, 45],[12, 14, 0, 39]],
+  [[31, 12, 18, 59],[22, 9, 14, 43], [8, 32, 5, 38],[1, 6, 21, 56]],
+  [[16, 18, 9, 36],[29, 6, 10, 52], [33, 2, 24, 37],[22, 11, 7, 48]],
+  [[1, 10, 21, 49],[2, 24, 20, 55],[26, 30, 17, 40],[0, 19, 5, 60]],
+  [[4, 12, 1, 50],[5, 25, 28, 44], [14, 33, 2, 51],[6, 16, 10, 41]],
+  [[19, 9, 23, 43],[16, 29, 8, 42],[7, 13, 34, 54], [3, 17, 33, 60]],
+  [[3, 25, 18, 48],[2, 5, 19, 38],[14, 10, 6, 46],[31, 12, 27, 45]],
+  [[14, 1, 10, 49],[5, 31, 34, 37],[8, 22, 32, 53], [4, 17, 33, 58]],
+  [[26, 15, 7, 59],[28, 6, 13, 52],[22, 9, 19, 36],[25, 5, 12, 55]],
+  [[9, 1, 0, 47],[28, 29, 16, 39],[33, 2, 23, 57],[26, 30, 32, 56]]
+];
+
+// 扩容至60种灵性动物
+const animals =[
+  { name: "独角兽", situation: "你当下的能量场正处于对纯净与理想的高度渴望之中。外界的嘈杂让你疲惫，潜意识试图寻找精神净土。", trait: "代表着灵魂深处的高贵与无暇。你不愿向世俗妥协，拥有着强大的治愈能量，对美好的事物有着本能的守护欲。", guidance: "保护好内心难得的纯真。不必勉强融入让你消耗的圈子，你的疗愈之力需先用于滋养自身。" },
+  { name: "极光鲸", situation: "你正潜游在潜意识的深海之中。近期的你更加内向、沉静，比起喧闹，你更倾向向内探索，经历情绪升华。", trait: "象征古老的智慧与灵魂的静谧。你拥有庞大却温柔的能量，能承载无数悲欢而不被吞噬，本身就是一种抚慰。", guidance: "允许自己在深海中缓慢潜行，无需急于浮出水面证明。倾听内心的低鸣，信任直觉。" },
+  { name: "幻夜蝶", situation: "生活正处于微妙的过渡期。旧有的连接正在消散，新的轮廓尚未清晰。你在梦境与现实边缘游走，酝酿蜕变。", trait: "代表不可预测的美与灵动。你拒绝被固定定义束缚，擅长捕捉稍纵即逝的灵感。神秘、优雅且朦胧。", guidance: "拥抱当下的不确定性，不要试图将一切抓得太紧。享受破茧前的摸索，你的每一次振翅都在改变生命色彩。" },
+  { name: "涅槃凤", situation: "你正处于深刻的毁灭与重生周期。也许正经历精神重构或执念的剥落。这并非终结，而是迎接更宏大的新生。", trait: "象征不灭的意志与绝对的转化。你的灵魂蕴含极高温度，敢于在灰烬中直面真实自我。", guidance: "不要畏惧内心的火焰烧毁旧日幻影。接纳蜕变时的灼痛，放下对过去的执念，你将拥有不可击败的力量。" },
+  { name: "游星龙", situation: "你当下的精神视角已被拉升至极高维度。渴望更广阔的真理与自由，正积蓄磅礴能量准备突破现有层级。", trait: "代表浩瀚的格局与超然的威严。你不屑参与底层争斗，目光永远锁定在星辰与宏大规则上。", guidance: "不要让庸俗规矩束缚双翼。相信你对宏观事物的直觉判断，追寻让灵魂战栗的目标，归宿在广阔天地。" },
+  { name: "迷雾鹿", situation: "你当前对周遭环境的敏感度达到顶峰。可能在刻意隐藏锋芒，以若即若离的姿态观察世界，需大量独处空间。", trait: "象征极致的敏感与林间精灵般的神秘。你带着难以穿透的迷雾，敏锐察觉暗流，轻盈空灵不染尘埃。", guidance: "将敏感视为天赋而非负担。不适时允许自己遁入迷雾，只在绝对安全的人面前卸下伪装。" },
+  { name: "渊海鳐", situation: "你正处于放松却暗藏警觉的状态。顺应着生活的潜流前行，默默吸收资讯，近乎隐形地掌控着自己的节奏。", trait: "代表在暗涌中优雅滑行的能力与深不可测的内涵。能在复杂环境中游刃有余，存在安静却极具压迫感。", guidance: "继续在暗流中保持优雅。无需向任何人证明轨迹，悄无声息地滑向目的地，你的力量在于不被察觉的深邃。" },
+  { name: "晶石狐", situation: "目前的思维空前活跃且澄澈，能迅速捕捉周遭变化。正面临需要灵巧应对的局面，正以机智化解危机。", trait: "代表折射光芒的智慧与极强适应力。既有狡黠聪慧，又具备晶石般剔透的灵魂，善于在规则边缘起舞。", guidance: "发挥聪明才智与灵活性。不要死守教条，用折射光芒的能力化解困境，同时保持灵魂核心的澄澈。" },
+  { name: "霜月狼", situation: "你正经历一段孤独却极为清醒��时期。依靠内心的���序建立起抵御风寒的屏障，这是一种自我淬炼。", trait: "象征孤高的独立、冷峻的洞察与绝对忠诚。习惯在月光下独行，一旦将某人纳入庇护圈便誓死守护。", guidance: "接纳这份高贵的孤独，不必为群体的温暖委屈骄傲。在寒霜中磨砺意志，同频的同伴自然会循声而来。" },
+  { name: "织梦蛛", situation: "你正处于极度专注的创造或布局状态。耐心在潜意识角落编织宏大精密的网，等待时机触碰蛛丝的一瞬。", trait: "代表宿命连结与深不可测的耐心。擅长从无到有构建世界，心智既脆弱透明又具备致命韧性。", guidance: "不要急于看到布局结果。在暗处静静完善作品，保持耐心与专注，网织成之时渴望之事自然降临。" },
+  { name: "灵泉水母", situation: "当前的能量状态通透且无明显边界。正在经历情感净化，放下固执防备，任由自己在这个世界漂浮感知。", trait: "象征透明无形的柔软与情绪的极致流动。灵魂不含杂质，能轻易看穿事物本质，散发令人宁静的幽光。", guidance: "放弃过度掌控与对抗。允许自己处于漂浮接纳状态，在柔软与透明中，你会发现化解坚硬的力量。" },
+  { name: "苍羽鹰", situation: "生活正要求你剥离情感牵绊，以绝对冷峻和客观的视角审视全局。眼前的迷雾被吹散，目标前所未有清晰。", trait: "代表无情但清醒的视野与挣脱束缚的渴望。不纠缠低谷，锁定目标便雷霆万钧俯冲出击，利落精准。", guidance: "信任自上而下的直觉判断，不要被琐碎情感拖累。保持心智锐利，时机成熟便向风暴中心突围。" },
+  { name: "守梦熊", situation: "状态极度沉稳内敛，仿佛进入精神休眠。不再向外寻求刺激，正无声守护某样珍贵事物或核心自我。", trait: "象征厚重如大地的力量与不容侵犯的领域感。拥有温厚包容一面，保护在意之人时会爆发压倒性力量。", guidance: "允许自己进入深度的休息与积蓄期。不要因暂时停滞焦虑，力量源自深沉，醒来时万物皆会为你让路。" },
+  { name: "琉璃猫", situation: "你正处于极度超然且带些慵懒的旁观状态。现实繁杂无法触及核心，仿佛与世界隔着一层剔透的玻璃。", trait: "代表难以驯服的独立与置身事外的通透。灵魂如琉璃精致易碎又冷硬冰凉，只取悦自己，不屑外界评判。", guidance: "维持高贵且不可预测的步调，不强迫自己迎合他人规则。保持清冷骄傲，懂欣赏距离感的人才配靠近。" },
+  { name: "吟风鹤", situation: "精神境界正趋于极致平衡。跨越了动荡时期，内心如同止水，正以极优雅的姿态面对人生的起落。", trait: "象征超脱世俗的清高与极致的平衡美学。不染人间烟火，追求精神绝对洁净，一举一动带浑然天成诗意。", guidance: "在喧嚣中守住清明与优雅，坚持对极简境界的追求。无需与人争执，在云端之上吟唱属于你的风之歌。" },
+  { name: "星辉豹", situation: "你正独步于人生的原野上，摒弃了嘈杂的跟随者。你的能量专注而敏捷，正静候着夜空指引的猎物。", trait: "代表极致的速度、专注与高傲的孤独。你喜欢独来独往，在黑暗中拥有无与伦比的洞察力。", guidance: "保持你的步调，不要被平庸的喧哗打乱节奏。你的目标在星辰指引的方向，迅猛出击即可。" },
+  { name: "幽冥蛇", situation: "你正在褪去一层陈旧的自我。生活中的某些幻象正在剥落，你正用冷峻的眼光重新审视周遭的人与事。", trait: "象征蜕变、隐秘的智慧与冷血的理智。你总是能够直击本质，不被表象所迷惑。", guidance: "顺应蜕变的痛苦，不要留恋旧有的外壳。你所洞察到的残酷真相，正是你新生的养分。" },
+  { name: "晨曦天马", situation: "灵感如泉水般涌动，你感受到一种突破重围的冲动。长久的压抑即将结束，第一缕曙光已照在你的羽翼上。", trait: "代表着自由的灵感、不羁的冲刺与光明的向往。你充满活力与希望，总能给人带来破晓般的震撼。", guidance: "不要怀疑你的直觉与灵感，是时候展翅高飞。带领周围的人一起冲破当下的暗夜。" },
+  { name: "琥珀龟", situation: "你的时间流速仿佛变慢，正在将经历过的一切沉淀为经验。你在构建一个坚不可摧的心灵堡垒。", trait: "象征着古老的记忆、永恒的耐力与绝对的庇护。你厚重且深沉，是周围人最可靠的精神支柱。", guidance: "按照自己的节奏稳步前行，不必羡慕他人的速度。你所沉淀的智慧，将抵御一切岁月的侵蚀。" },
+  { name: "虚空鸦", situation: "你处于一种极具灵性的穿透状态，仿佛能看透生与死、始与终的循环。你在现实中捕捉到了超越寻常的启示。", trait: "代表着精神世界的信使与对未知的无畏。你总是能在黑暗中找到出路，并带来改变命运的讯息。", guidance: "留意生活中的巧合与直觉闪念，那正是宇宙给你的暗示。不要害怕做那个揭示真相的人。" },
+  { name: "焰羽孔雀", situation: "你正渴望展现自己最真实、最华丽的一面。长期以来的蛰伏让你积攒了足够的底气，是时候惊艳四座了。", trait: "象征着无与伦比的骄傲、耀眼的才华与绝境中的华丽绽放。你的存在本身就是一场视觉盛宴。", guidance: "不要再隐藏你的光芒，自信地展示你的成果与美丽。这个世界需要你的斑斓来打破沉闷。" },
+  { name: "碧波海豚", situation: "你当下的能量充满了欢愉与灵动。你愿意与他人建立深刻的情感连接，在人际互动中获得疗愈。", trait: "代表着纯粹的快乐、情感的共鸣与高频率的灵性交流。你友善聪慧，拥有将负面情绪转化为水花的魔力。", guidance: "用你的乐观去感染周围的人，在轻松愉悦的氛围中，那些原本棘手的难题都将迎刃而解。" },
+  { name: "苍雪枭", situation: "你正栖息在精神的高地上，冷眼旁观着世间的纷纷扰扰。你的头脑如同冰雪般冷静，一切谎言都逃不过你的眼睛。", trait: "象征着不苟言笑的智慧、黑夜中的洞察与绝对的理智。你不会被情绪左右，只看重事实与逻辑。", guidance: "保持你中立且清醒的视角，在众人皆醉时做那个清醒的引路人。你的判断是破局的关键。" },
+  { name: "幻音夜莺", situation: "你内心的情感急需一个宣泄的出口。你可能正通过艺术、文字或言语，将灵魂的频率传递给这个世界。", trait: "代表着深情的表达、灵魂的共鸣与在暗夜中吟唱的勇气。你的声音或文字具有直击人心的力量。", guidance: "不要压抑表达的欲望，大声唱出你的心声。你的故事和情感，将会成为照亮他人暗夜的星光。" },
+  { name: "碎星蜉蝣", situation: "你正深刻体会着生命的短暂与绚烂。你不求天长地久，只渴望在当下燃烧出最耀眼的光芒，不留遗憾。", trait: "象征着瞬间的极致、不计后果的投入与对当下的绝对掌控。你的能量虽然短暂，却足够震撼。", guidance: "将所有的激情倾注于眼前正在做的事。不要去担忧遥远的未来，极致的当下便已是永恒。" },
+  { name: "荆棘刺猬", situation: "你正处于一种极度自我保护的状态。外界的某些刺激让你竖起了防备，你将最柔软的内心紧紧包裹起来。", trait: "代表着界限感、防御机制与不为人知的温柔。你外表充满攻击性，内心却比谁都渴望安全感。", guidance: "允许自己暂时躲在刺的背后，但请留一条缝隙给那些真正爱你的人���适时的卸下防备，���是一种勇敢。" },
+  { name: "朔风猎犬", situation: "你正在追寻一个极其明确的目标，心中充满了不达目的誓不罢休的信念。狂风无法阻挡你奔跑的脚步。", trait: "象征着极致的忠诚、敏锐的嗅觉与不屈的追寻。一旦锁定了猎物或真理，你便会死死咬住绝不松口。", guidance: "相信你的嗅觉和直觉，勇敢地追寻你的渴望。沿途的风雪只会让你的意志更加坚不可摧。" },
+  { name: "鎏金蟾蜍", situation: "你正处于物质与能量丰盛的积累期。你的气场变得沉稳且具有吸金体质，现实层面的安全感正在建立。", trait: "代表着物质的丰盛、沉稳的积累与不露声色的富足。你不追求虚无缥缈，只看重实实在在的收获。", guidance: "把握当下在现实层面扎根的机会，妥善管理你的资源。物质的充实将为你后续的灵性飞跃提供底气。" },
+  { name: "琉璃蜥蜴", situation: "你正在经历一场复杂环境的考验，必须不断变换自己的色彩以求生存或发展。你的适应力被彻底激发。", trait: "象征着绝佳的适应力、巧妙的伪装与在夹缝中生存的智慧。你能轻易融入任何环境，却不迷失自我。", guidance: "利用你的变色能力去应对周遭的复杂人际。在保护好自己的同时，静静等待一击必中的时机。" },
+  { name: "沉沙巨蝎", situation: "你正在暗处蛰伏，默默忍受着环境的严酷。你把锋芒藏在沙下，酝酿着一次致命的、足以改变现状的爆发。", trait: "代表着极致的隐忍、危险的魅力与不可逆转的爆发力。你不轻易出手，一旦出击必将带来毁灭与重塑。", guidance: "继续保持隐忍与耐心，不要在时机未到时暴露底牌。当沙暴来临，便是你举起尾刺的时刻。" },
+  { name: "幻影猎豹", situation: "生活节奏突然加快，你需要极高的专注力与爆发力去应对。你正处于一种全神贯注、肌肉紧绷的冲刺状态。", trait: "象征着雷厉风行的速度、聚精会神的锁定与优雅的爆发。你从不拖泥带水，以极高的效率解决问题。", guidance: "屏除一切杂念，将所有的力量集中在当下这关键的一跃上。不要犹豫，速度与果断是你的制胜法宝。" },
+  { name: "翠林树人", situation: "你深深扎根于当下的生活，感受到一种与大地相连的踏实感。你正在为周围的人提供荫蔽与滋养。", trait: "代表着生命的繁衍、古老的智慧与不求回报的庇护。你成长缓慢但无比坚实，是生态圈的基石。", guidance: "保持你的稳重与���容。无需随风起舞，你的存在本身就是一种强大的稳定力量，时间会证明你的价值。" },
+  { name: "极地白熊", situation: "你正身处一片资源匮乏或环境严酷的冰原上，但你没有退缩，而是凭借极其强大的耐力独自前行。", trait: "象征着绝对的孤高、顽强的生存意志与冰冷的压迫感。你不惧怕漫长的寒冬，能够在绝境中开拓生机。", guidance: "保存体力，坚定步伐。严酷的环境正是检验你灵魂韧性的考场，坚持下去，你终将成为这片冰原的王者。" },
+  { name: "云端飞鱼", situation: "你的思维正在跨越传统的边界。你不满足于在原有的领域中游弋，渴望破水而出，去感受云端的气息。", trait: "代表着打破常规的勇气、跨界跃迁的能力与天马行空的想象力。你不仅能适应深海，更能触摸蓝天。", guidance: "大胆去尝试那些看似不可能的跨界想法。不要被世俗的约束所局限，你的舞台比想象中更宽广。" },
+  { name: "幽林夜豹", situation: "你正在暗中观察局势的发展，不轻易表露自己的情绪与意图。你在茂密的丛林中穿梭，一切尽在掌握。", trait: "象征着敏锐的潜伏、悄无声息的行动与不可预测的神秘感。你总是在暗处掌控大��，让人敬畏。", guidance: "保持低调与警惕，暗中收集你需要的信息。在局势彻底明朗之前，继续做那个隐藏在阴影中的主宰者。" },
+  { name: "苍暮雪豹", situation: "你正处于一种极度冷静的旁观状态，在冷冽的环境中守护着属于自己的领地，不让任何人轻易踏足。", trait: "代表着绝境中的优雅、极端的克制与与生俱来的高傲。你在孤寒中生存，不需要多余的认同。", guidance: "保持你精神上的洁癖与距离感。那些无法适应你温度的人，本就不属于你的世界。" },
+  { name: "织星天狼", situation: "你的灵魂正受到星辰的感召，强烈的直觉指引着你在黑暗中开拓一条前人未走的道路。", trait: "象征着天生的领航者、星空下的守望与野性的直觉。你的存在能为迷途者指明方向。", guidance: "信任你脑海中突然闪现的灵光。大胆地去带领周围的人，即使前方是一片未知的荒野。" },
+  { name: "极夜曼巴", situation: "你正在悄无声息地积攒致命的能量，将过去受到的伤害转化为更加锐利的反击手段。", trait: "代表着危险的蛰伏、一击致命的决心与极致的冷酷。你不主动招惹是非，但绝不宽恕越界者。", guidance: "在暗处打磨你的锋芒。不要因为一时的冲动而暴露底牌，等待那个最完美的时机再采取行动。" },
+  { name: "踏云仙鹿", situation: "你的精神层次正在脱离现实的沉重，以一种仙气飘飘的姿态俯瞰世间的恩怨与繁杂。", trait: "象征着轻盈的灵魂、超凡脱俗的气质与神性之美。你所到之处，所有的沉重都会被化解。", guidance: "保持你精神的轻盈，不要被世俗的纠纷拖累。你的任务是带来宁静，而不是参与争斗。" },
+  { name: "渊火凤凰", situation: "你正在经历一场从内而外的炼狱燃烧。旧有的舒适圈被彻底打破，你不得不在黑暗深渊中浴火重生。", trait: "代表着毁灭后的极致重生、暗黑的生命力与绝不妥协的灵魂。你的力量来源于你所承受的痛苦。", guidance: "拥抱这燃烧的痛楚。不要试图逃避深渊，只有当你将自己烧成灰烬，才能展露最耀眼的羽翼。" },
+  { name: "沧海灵龟", situation: "你感到一种深沉的疲惫，渴望回到灵魂的深海中去。你正以极慢的节奏吸收着宇宙的能量。", trait: "象征着与世无争的从容、承载万物的胸怀与跨越时间的智慧。你不受外界节奏的干扰。", guidance: "放慢你的脚步。慢下来并不是退缩，而是在沉淀更深层的力量。时间会是你最好的盟友。" },
+  { name: "幻晶飞蛾", situation: "你被某种神秘的光芒强烈地吸引着。即使知道前方充满未知的危险，你依然渴望去触碰那份极致的绚烂。", trait: "代表着飞蛾扑火的执着、对光明的极端渴望与脆弱但惊人的勇气。你愿意为了一瞬的光明付出一切。", guidance: "去追寻让你灵魂战栗的光芒，但请保持一丝清醒，确保你的付出值得那份绚烂的燃烧。" },
+  { name: "暮光幽灵", situation: "你正游走在现实与虚幻的边界。你感到自己难以被他人理解，仿佛一个漂浮在黄昏时刻的影子。", trait: "象征着难以捉摸的存在感、超越维度的感知与淡淡的忧伤。你能看到别人忽视的细腻情感。", guidance: "不要为了融入人群而勉强自己。你独特的边缘视角，正是你洞察这世界最深层秘密的钥匙。" },
+  { name: "琥珀金雕", situation: "你的目光极其锐利，正站在制高点俯视着下方的猎物与机会。你不会被短暂的诱惑蒙蔽双眼。", trait: "代表着王者的视野、雷霆万钧的行动力与绝对的掌控欲。你总是能精准地捕捉到成功的契机。", guidance: "锁定你最高远的那个目标。不要在琐碎的事情上浪费精力，你生来就该翱翔在��力的顶峰。" },
+  { name: "翡翠灵蛇", situation: "你正经历着心灵深处的隐秘蜕皮，剥落旧的情感模式。你的智慧在悄无声息中变得更加通透。", trait: "象征着疗愈的力量、隐秘的重生与妩媚的智慧。你懂得如何在受伤后自我修复，并变得更加迷人。", guidance: "允许旧日的记忆像蛇皮一样脱落。用你崭新的面貌和智慧去迎接接下来的生活，你将无往不利。" },
+  { name: "繁星水母", situation: "你的潜意识如海洋般深邃且浪漫，正随着某种看不见的宇宙洋流漂浮。你的内心充满了迷幻的创造力。", trait: "代表着梦幻的漂移、柔软的发光体与无边界的情感。你不需要刻意发力，就能吸引注目的眼光。", guidance: "顺应生命的洋流，不要用力去对抗。在放松的状态下，你的灵感与创造力将如繁星般闪耀。" },
+  { name: "迷雾霜熊", situation: "你的能量极其庞大，但目前被厚厚的冰霜所掩盖。你正处于一种防御性极强的自我保护状态中。", trait: "象征着憨厚的伪装、恐怖的力量与不可撼动的底线。平日里你温和无害，一旦被触怒将势不可挡。", guidance: "继续在迷雾中积蓄你的力量。不需要逢人便展示你的肌肉，真正的强者懂得在安静中震慑一切。" },
+  { name: "炽阳神鸟", situation: "你正处于能量大爆发的阶段。你渴望将自己的光和热播撒给世界，驱散周围所有的阴霾。", trait: "代表着纯粹的阳刚之气、毫不保留的给予与光芒万丈的存在感。你是人群中绝对的发光体。", guidance: "尽情释放你的热情与才华。你的光芒足以照亮他人的暗途，不要吝啬你的温暖与鼓励。" },
+  { name: "幽兰蝴蝶", situation: "你正处于一种极度幽微且私密的悲感之中。你在独自品尝着某种孤芳自赏的美感。", trait: "象征着脆弱的优雅、忧郁的诗意与难以触碰的美。你的灵魂如同生长在悬崖边的幽兰，孤独且高贵。", guidance: "将这种孤独的美感转化为你的创作源泉。你的忧郁并非病态，而是一种极为罕见的艺术频率。" },
+  { name: "沉睡巨龙", situation: "你对眼前的琐事感到索然无味，正在等待一个真正值得你苏醒的宏大契机。", trait: "代表着未觉醒的庞大潜力、对平庸的蔑视与古老的威严。一旦你睁开双眼，整个世界都将为之震颤。", guidance: "不要为那些不值得的人和事浪费你的吐息。继续沉睡、继续积累，直到那个属于你的时代来临。" },
+  { name: "苍穹风隼", situation: "你的思维如同闪电般敏捷，正在高速运转以应对生活中的多重挑战。你渴望摆脱一切束缚。", trait: "象征着极致的自由、锐利的切入与毫无阻碍的穿透力。你追求的是精神上无拘无束的翱翔。", guidance: "剪断那些试图拴住你的绳索。相信你借风而行的本能，只要你敢于放手，天空任你驰骋。" },
+  { name: "幻境狸猫", situation: "你正带着戏谑的态度看待周围的一切。你喜欢隐藏真实的自己，用多变的面具来测试这个世界。", trait: "代表着古灵精怪的智慧、善意的欺骗与看破红尘的幽默感。你在人际交往中游刃有余，难以被看穿。", guidance: "继续用你的幽默和千变万化来化解生活的无聊。只要不失去内心的善良，偶尔的恶作剧反而是一种智慧。" },
+  { name: "冰原独角鲸", situation: "你正潜入极寒的思想深渊，寻找那个能够刺破虚伪的唯一真理。你的灵魂极度纯粹且孤独。", trait: "象征着突破冰层的利剑、深海中的神秘向导与绝对的纯粹。你拥有着看破一切虚妄的神圣力量。", guidance: "坚持你对真理的追寻。即使周围是一片冰封，你那根敏锐的独角也终将为你开辟出一条生路。" },
+  { name: "炼狱猎犬", situation: "你���中燃烧着某种强烈的执念或复仇的渴望。你正在黑暗中疯狂奔跑，誓要咬住那个目标。", trait: "代表着狂热的追逐、不计代价的执行力与震慑人心的狂野。你一旦认准，就算是地狱也敢闯。", guidance: "控制好你内心的业火。强大的驱动力是你的武器，但请确保你追逐的目标不会最终将你吞噬。" },
+  { name: "极光雪狐", situation: "你正处于一种灵性极高、极其机敏的状态。你能敏锐捕捉到那些超越常理的巧合与宇宙的低语。", trait: "象征着狡黠的仙气、不可思议的好运与变幻莫测的行踪。你如同极光般迷人却又无法被任何容器抓住。", guidance: "跟随你那些不可思议的直觉。不要用世俗的逻辑去限制自己，你的好运藏在那些打破常规的决定里。" },
+  { name: "深海灯笼鱼", situation: "你身处一片几乎没有光亮的低谷期，但你自己就是唯一的光源，正在耐心吸引着你的猎物。", trait: "代表着绝境中的希望之光、致命的吸引力与极度的耐心。你懂得在最恶劣的环境中创造生机。", guidance: "不要因为周围的黑暗而熄灭你头顶的光。你的坚持不仅能照亮自己，还会吸引来你所需的资源。" },
+  { name: "时光蜉蝣", situation: "你突然领悟了时间的虚无与生命的转瞬即逝。你不执着于长久的占有，只在乎此刻灵魂的震颤。", trait: "象征着刹那即永恒、对宿命的坦然接受与极度轻盈的存在。你用一天的时间，活出了别人一生的精彩。", guidance: "放下对未来的所有焦虑。把每一天都当成生命中的最后一天来燃烧，尽情体验，不留遗憾。" },
+  { name: "幽谷青鸟", situation: "你正在传递着某种充满希望的讯息。你的存在就像是久旱逢甘霖，给人带来极大的心灵慰藉。", trait: "代表着幸福的使者、温柔的治愈与带来好运的预兆。你生来就是为了传递爱与和平的频率。", guidance: "不要低估你言语的治愈力量。去安慰那些正在受苦的人，你在给予希望的同时，自己也会获得救赎。" },
+  { name: "灵砂荒漠狐", situation: "你正处于一种极度干渴或资源匮乏的境地，但你凭借着顽强的生存智慧，一次次在绝境中找到绿洲。", trait: "象征着极端的适应力、狡兔三窟的智慧与大漠孤烟的孤独。你懂得如何用最少的资源活得最好。", guidance: "相信你刻在骨子里的生存本能。暂时的困难打不倒你，你比任何人都要懂得如何在荒芜中寻找甘泉。" },
+  { name: "破晓天鹅", situation: "你即将迎来漫长黑夜后的黎明。你正舒展着优雅的羽翼，准备在第一缕阳光下完成华丽的蜕变。", trait: "代表着高贵无暇、熬过暗夜的坚韧与令人窒息的蜕变之美。你的优雅是经历了无数痛苦打磨出来的。", guidance: "保持你高昂的头颅。最难熬的阶段已经过去，请以最美的姿态去迎接属于你的光辉岁月。" }
+];
+
+const icons = {
+  star: `<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2L14.4 8.6L21 9.2L16 13.6L17.5 20L12 16.5L6.5 20L8 13.6L3 9.2L9.6 8.6L12 2Z" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+  moon: `<svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke-linejoin="round" stroke-linecap="round"/><circle cx="15.5" cy="7.5" r="1.2" fill="#555"/></svg>`
+};
+
+function getTarotFaceSVG(cardName) {
+  if (cardName.includes("权杖")) {
+    return `<svg class="card-front-svg" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21" /><path d="M12 7 C15 5, 17 9, 12 10" /><path d="M12 15 C9 13, 7 17, 12 18" /></svg>`;
+  } else if (cardName.includes("圣杯")) {
+    return `<svg class="card-front-svg" viewBox="0 0 24 24"><path d="M7 6 C7 14, 17 14, 17 6 Z" /><line x1="12" y1="13.5" x2="12" y2="20" /><line x1="8" y1="20" x2="16" y2="20" /></svg>`;
+  } else if (cardName.includes("宝剑")) {
+    return `<svg class="card-front-svg" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="20" /><line x1="8" y1="16" x2="16" y2="16" /><circle cx="12" cy="16" r="1.5" /></svg>`;
+  } else if (cardName.includes("钱币")) {
+    return `<svg class="card-front-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><polygon points="12,6 14.5,10.5 19.5,11 15.5,14.5 16.5,19.5 12,17 7.5,19.5 8.5,14.5 4.5,11 9.5,10.5" stroke-width="1" /></svg>`;
+  } else {
+    return `<svg class="card-front-svg" viewBox="0 0 24 24"><path d="M3 12 C3 12, 8 5, 12 5 C16 5, 21 12, 21 12 C21 12, 16 19, 12 19 C8 19, 3 12, 3 12 Z" /><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="1" fill="#444" /></svg>`;
+  }
+}
+
+const app = document.getElementById('app');
+let tarotCard = "";
+let tarotDesc = "";
+let currentQ = 0;
+let userAnswers =[];
+
+function renderHome() {
+  app.innerHTML = `
+    <div class="home-title">寻觅你的内在灵性动物</div>
+    <div class="home-sub">一次关于潜意识与能量的温柔探索<br>请放下理智，跟随直觉的指引</div>
+    <button class="btn-outline" onclick="renderTarotStage()">开启旅程</button>
+  `;
+}
+
+function renderTarotStage() {
+  const drawnCards =[];
+  while(drawnCards.length < 3) {
+    let card = tarotDeck[Math.floor(Math.random() * tarotDeck.length)];
+    if(!drawnCards.includes(card)) drawnCards.push(card);
+  }
+
+  app.innerHTML = `
+    <div class="tarot-sub-title">请凭直觉，抽取一张牌</div>
+    <div class="cards-container" id="cards-container">
+      ${drawnCards.map((c, index) => `
+        <div class="tarot-card" onclick="flipCard(this, '${c}')" data-index="${index}">
+          <div class="card-face card-back">${icons.star}</div>
+          <div class="card-face card-front">
+            ${getTarotFaceSVG(c)}
+            <div class="card-front-text">${c}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div id="tarot-explanation" class="tarot-explanation"></div>
+    <div class="continue-link" id="continue-link" onclick="startQuiz()">带着指引，继续前行</div>
+  `;
+}
+
+window.flipCard = function(el, cardName) {
+  if (tarotCard !== "") return;
+  tarotCard = cardName;
+  tarotDesc = tarotMeanings[cardName] || "这是一次能量的转折，请静待潜意识的回响。";
+  
+  el.classList.add('flipped');
+  
+  const container = document.getElementById('cards-container');
+  const allCards = container.querySelectorAll('.tarot-card');
+  allCards.forEach(c => {
+    if(c !== el) {
+      c.style.opacity = '0';
+      c.style.transform = 'scale(0.9)';
+      setTimeout(() => c.style.display = 'none', 400);
+    }
+  });
+
+  document.querySelector('.tarot-sub-title').innerText = "当下的能量映射";
+  
+  setTimeout(() => {
+    const expEl = document.getElementById('tarot-explanation');
+    expEl.innerHTML = `<strong>【${cardName}】</strong><br>${tarotDesc}`;
+    expEl.classList.add('visible');
+    document.getElementById('continue-link').classList.add('visible');
+  }, 900);
+}
+
+window.startQuiz = function() {
+  currentQ = 0;
+  userAnswers =[];
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (currentQ >= questions.length) {
+    generateReport();
+    return;
+  }
+  
+  const q = questions[currentQ];
+  app.innerHTML = `
+    <div class="quiz-container">
+      <div class="page-num">${currentQ + 1} / 12</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options-list">
+        ${q.o.map((opt, i) => `
+          <div class="option-item" onclick="selectOption(this, ${i})">${opt}</div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+window.selectOption = function(el, optIndex) {
+  if (el.parentNode.querySelector('.selected')) return;
+  
+  el.classList.add('selected');
+  userAnswers.push(optIndex);
+  
+  setTimeout(() => {
+    currentQ++;
+    renderQuiz();
+  }, 450);
+}
+
+function generateReport() {
+  // 基于60种动物维度的离散加权统计算法
+  let scores = new Array(60).fill(0);
+  for(let i = 0; i < 12; i++) {
+    // 提取出每一题选项对应的3-4个动物索引，进行加权
+    let targetAnimals = animalQ[i][userAnswers[i]];
+    targetAnimals.forEach(idx => {
+      scores[idx]++;
+    });
+  }
+  
+  let maxScore = Math.max(...scores);
+  let topAnimals =[];
+  scores.forEach((s, idx) => { if (s === maxScore) topAnimals.push(idx); });
+  
+  let finalAnimalIdx = topAnimals[Math.floor(Math.random() * topAnimals.length)];
+  let animal = animals[finalAnimalIdx];
+
+  app.innerHTML = `
+    <div class="report-card">
+      <div class="report-sub">你的内在灵性动物</div>
+      <div class="report-title">${animal.name}</div>
+      
+      <div class="report-tarot">
+        ${icons.moon}
+        当下能量：${tarotCard}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">当下境遇</div>
+      <div class="section-content">
+        【塔罗指引】：${tarotDesc}<br><br>
+        【灵性状态】：${animal.situation}
+      </div>
+
+      <div class="section-title">灵魂特质</div>
+      <div class="section-content">
+        你的内在动物是【${animal.name}】。${animal.trait}
+      </div>
+
+      <div class="section-title">灵性指引</div>
+      <div class="section-content">
+        ${animal.guidance}
+      </div>
+
+      <button class="btn-outline" onclick="location.reload()">重新探索</button>
+    </div>
+  `;
+}
+
+renderHome();
+
+</script>
+</body>
+</html>
